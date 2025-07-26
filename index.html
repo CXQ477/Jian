@@ -82,6 +82,11 @@
         <button class="blue-btn" style="padding:0.5rem 1.2rem;font-size:1rem;" onclick="showFeedback()">意见与投诉</button>
     </div>
     <header>简书</header>
+    <div style="text-align:right;margin:1rem 0;">
+        <button class="blue-btn" onclick="exportData()">导出数据</button>
+        <input type="file" id="import-file" style="display:none" accept=".json" onchange="importData(event)">
+        <button class="blue-btn" onclick="document.getElementById('import-file').click()">导入数据</button>
+    </div>
     <div class="container">
         <div class="register">
             <h2>注册</h2>
@@ -132,6 +137,42 @@
         </div>
     </div>
     <script src="main.js"></script>
+    <script>
+    function exportData() {
+        const users = localStorage.getItem('users') || '[]';
+        const articles = localStorage.getItem('articles') || '[]';
+        const data = { users: JSON.parse(users), articles: JSON.parse(articles) };
+        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'jianshu_data.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+    function importData(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            try {
+                const data = JSON.parse(evt.target.result);
+                if (Array.isArray(data.users) && Array.isArray(data.articles)) {
+                    localStorage.setItem('users', JSON.stringify(data.users));
+                    localStorage.setItem('articles', JSON.stringify(data.articles));
+                    alert('导入成功，刷新页面后生效！');
+                } else {
+                    alert('导入文件格式不正确');
+                }
+            } catch {
+                alert('导入失败，文件内容有误');
+            }
+        };
+        reader.readAsText(file);
+    }
+    </script>
     <script>
     function showFeedback() {
         alert('意见与投诉\n\n联系人：陈相全\n邮箱：chhmxl13883925907@hotmail.com');
