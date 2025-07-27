@@ -155,3 +155,21 @@ window.onload = function() {
     renderLoginStatus();
     if (currentUser) hideAuthForms();
 }
+// 发布文章时生成分享链接
+function generateShareLink(article) {
+  const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(article));
+  return `${window.location.origin}${window.location.pathname}?article=${compressed}`;
+}
+
+// 读取URL中的文章
+function loadArticleFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  if(params.has('article')) {
+    try {
+      return JSON.parse(LZString.decompressFromEncodedURIComponent(params.get('article')));
+    } catch(e) {
+      console.error('解析文章失败', e);
+    }
+  }
+  return null;
+}
